@@ -4,12 +4,12 @@ random() {
 	echo
 }
 
-array=(1 2 3 4 5 6 7 8 9 0 a b c d e f)
 gen64() {
-	ip64() {
-		echo "${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}"
+	# Tạo random hex cho IPv6
+	hex_random() {
+		printf "%04x" $((RANDOM % 65536))
 	}
-	echo "$1:$(ip64):$(ip64):$(ip64):$(ip64)"
+	echo "$1:$(hex_random):$(hex_random):$(hex_random):$(hex_random)"
 }
 detect_interface() {
     # Tìm interface mạng chính
@@ -29,6 +29,10 @@ install_3proxy() {
     mkdir -p /usr/local/etc/3proxy/{bin,logs,stat}
     cp bin/3proxy /usr/local/etc/3proxy/bin/
     cp ./scripts/init.d/3proxy.sh /etc/init.d/3proxy
+    # Sửa đường dẫn 3proxy trong service script
+    sed -i 's|/bin/3proxy|/usr/local/etc/3proxy/bin/3proxy|g' /etc/init.d/3proxy
+    sed -i 's|DAEMON=.*|DAEMON=/usr/local/etc/3proxy/bin/3proxy|g' /etc/init.d/3proxy
+    sed -i 's|3proxy|/usr/local/etc/3proxy/bin/3proxy|g' /etc/init.d/3proxy
     chmod +x /etc/init.d/3proxy
     chkconfig 3proxy on
     cd $WORKDIR
@@ -49,7 +53,7 @@ users $(awk -F "/" 'BEGIN{ORS="";} {print $1 ":CL:" $2 " "}' ${WORKDATA})
 
 $(awk -F "/" '{print "auth strong\n" \
 "allow " $1 "\n" \
-"socks -6 -n -a -p" $4 " -i" $3 " -e"$5"\n" \
+"socks -6 -n -a -p" $4 " -i" $3 " -e" $5 "\n" \
 "flush\n"}' ${WORKDATA})
 EOF
 }
@@ -72,7 +76,7 @@ upload_proxy() {
 }
 gen_data() {
     seq $FIRST_PORT $LAST_PORT | while read port; do
-        echo "usr$(random)/pass$(random)/$IP4/$port/$(gen64 $IP6)"
+        echo "usr$(random)/pass$(random)/$IP4/$port/$(gen64 "$IP6")"
     done
 }
 

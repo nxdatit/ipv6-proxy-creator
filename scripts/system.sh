@@ -3,10 +3,10 @@ random() {
 	echo
 }
 
-array=(1 2 3 4 5 6 7 8 9 0 a b c d e f)
 gen64() {
-	ip64() {
-		echo "${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}"
+	# Tạo random hex cho IPv6
+	hex_random() {
+		printf "%04x" $((RANDOM % 65536))
 	}
-	echo "$1:$(ip64):$(ip64):$(ip64):$(ip64)"
+	echo "$1:$(hex_random):$(hex_random):$(hex_random):$(hex_random)"
 }
