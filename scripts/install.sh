@@ -32,7 +32,6 @@ install_3proxy() {
     # Sửa đường dẫn 3proxy trong service script
     sed -i 's|/bin/3proxy|/usr/local/etc/3proxy/bin/3proxy|g' /etc/init.d/3proxy
     sed -i 's|DAEMON=.*|DAEMON=/usr/local/etc/3proxy/bin/3proxy|g' /etc/init.d/3proxy
-    sed -i 's|3proxy|/usr/local/etc/3proxy/bin/3proxy|g' /etc/init.d/3proxy
     chmod +x /etc/init.d/3proxy
     chkconfig 3proxy on
     cd $WORKDIR
