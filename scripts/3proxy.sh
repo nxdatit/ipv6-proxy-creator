@@ -1,3 +1,12 @@
+detect_interface() {
+    # Tìm interface mạng chính
+    INTERFACE=$(ip route | grep default | awk 'NR==1{print $5}')
+    if [ -z "$INTERFACE" ]; then
+        INTERFACE=$(ls /sys/class/net/ | grep -v lo | head -1)
+    fi
+    echo $INTERFACE
+}
+
 install_3proxy() {
     echo "installing 3proxy"
     URL="https://github.com/z3APA3A/3proxy/archive/3proxy-0.8.6.tar.gz"
@@ -61,7 +70,8 @@ EOF
 }
 
 gen_ifconfig() {
+    MAIN_INTERFACE=$(detect_interface)
     cat <<EOF
-$(awk -F "/" '{print "ifconfig eth0 inet6 add " $5 "/64"}' ${WORKDATA})
+$(awk -F "/" -v iface="$MAIN_INTERFACE" '{print "ifconfig " iface " inet6 add " $5 "/64"}' ${WORKDATA})
 EOF
 }
